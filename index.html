@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>CafeFinder — Scroll less, hang more</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<div id="loader" aria-label="CafeFinder sedang dimuat">
+  <div class="spill-scene">
+    <div class="coffee-cup">
+      <div class="cup-face">☕</div>
+    </div>
+    <div class="coffee-splash splash-one"></div>
+    <div class="coffee-splash splash-two"></div>
+    <div class="coffee-puddle"></div>
+    <div class="steam steam-one"></div>
+    <div class="steam steam-two"></div>
+    <div class="steam steam-three"></div>
+  </div>
+  <div class="l-logo">Cafe<span>Finder</span></div>
+  <div class="l-bar"><div class="l-fill"></div></div>
+</div>
+
+<div id="app">
+  <nav>
+    <a href="#" class="logo">
+      <div class="logo-icon">☕</div>
+      Cafe<span>Finder</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Buka menu" aria-expanded="false">
+      <span></span>
+      <span></span>
+      <span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="#" class="active">Temukan Cafe</a>
+      <a href="forum.html">Forum</a>
+      <a href="#">Reservasi</a>
+      <a href="#mitra-cafe">Mitra Cafe</a>
+    </div>
+    <div class="nav-right">
+      <button class="nav-btn">Masuk</button>
+      <button class="nav-btn primary">Daftar Gratis</button>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-bg-circle"></div>
+    <div class="hero-bg-circle"></div>
+    <div class="hero-bg-circle"></div>
+    <div class="hero-grain"></div>
+    <div class="hero-content">
+      <div class="hero-tag">
+        <div class="pulse"></div>
+        30 Cafe di Jakarta Barat
+      </div>
+      <h1>Scroll less,<br><em>hang more.</em></h1>
+      <p>Temukan cafe yang cocok untuk WFC, kumpul keluarga,<br>atau nongkrong — semua info lengkap dalam satu platform.</p>
+      <div class="search-wrap">
+        <input class="search-input" type="text" placeholder="Cari cafe, area, atau fasilitas..."/>
+        <button class="search-btn">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Cari Cafe
+        </button>
+      </div>
+      <div class="hero-stats">
+        <div class="hero-stat"><div class="num">2.4k+</div><div class="lbl">Cafe Terdaftar</div></div>
+        <div class="hero-stat"><div class="num">18k+</div><div class="lbl">Ulasan Terverifikasi</div></div>
+        <div class="hero-stat"><div class="num">94%</div><div class="lbl">Pengguna Puas</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FILTER -->
+  <div class="filter-row">
+    <span class="filter-label">Kategori:</span>
+    <div class="chip active" data-category="all" onclick="setChip(this)">Semua</div>
+    <div class="chip" data-category="wfc" onclick="setChip(this)">☕ WFC</div>
+    <div class="chip" data-category="family" onclick="setChip(this)">👨‍👩‍👧 Keluarga</div>
+    <div class="chip" data-category="hangout" onclick="setChip(this)">🎉 Nongkrong</div>
+    <div class="chip" data-category="accessible" onclick="setChip(this)">♿ Disability Friendly</div>
+    <div class="chip" data-category="local" onclick="setChip(this)">🏠 UMKM Lokal</div>
+    <div class="chip" data-category="night" onclick="setChip(this)">🌙 Buka Malam</div>
+    <div class="chip" data-category="music" onclick="setChip(this)">🎵 Live Music</div>
+  </div>
+
+  <div class="main-layout">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="sidebar-section">
+        <div class="sidebar-title">Range Harga / Orang</div>
+        <div class="price-row">
+          <div class="price-btn" onclick="togglePrice(this)" data-price="lt25">&lt;25k</div>
+          <div class="price-btn" onclick="togglePrice(this)" data-price="25-50">25–50k</div>
+          <div class="price-btn" onclick="togglePrice(this)" data-price="50-100">50–100k</div>
+          <div class="price-btn" onclick="togglePrice(this)" data-price="gt100">&gt;100k</div>
+        </div>
+      </div>
+      <hr class="divider"/>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Fasilitas</div>
+        <div class="filter-item"><input type="checkbox" id="f1" data-filter="wifi"/><label for="f1">WiFi Kencang (&gt;50mbps)</label></div>
+        <div class="filter-item"><input type="checkbox" id="f2" data-filter="colokan"/><label for="f2">Stop Kontak di Meja</label></div>
+        <div class="filter-item"><input type="checkbox" id="f3" data-filter="ac"/><label for="f3">AC / Ruangan Dingin</label></div>
+        <div class="filter-item"><input type="checkbox" id="f4" data-filter="parkir"/><label for="f4">Area Parkir Luas</label></div>
+        <div class="filter-item"><input type="checkbox" id="f5" data-filter="smoking"/><label for="f5">Smoking Area</label></div>
+        <div class="filter-item"><input type="checkbox" id="f6" data-filter="meeting"/><label for="f6">Meeting / Private Room</label></div>
+        <div class="filter-item"><input type="checkbox" id="f7" data-filter="pet"/><label for="f7">Pet Friendly</label></div>
+      </div>
+      <hr class="divider"/>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Suasana</div>
+        <div class="filter-item"><input type="checkbox" id="s1" data-filter="tenang"/><label for="s1">Tenang / Kondusif</label></div>
+        <div class="filter-item"><input type="checkbox" id="s2" data-filter="cozy"/><label for="s2">Cozy & Warm</label></div>
+        <div class="filter-item"><input type="checkbox" id="s3" data-filter="ramai"/><label for="s3">Ramai & Seru</label></div>
+        <div class="filter-item"><input type="checkbox" id="s4" data-filter="outdoor"/><label for="s4">Outdoor / Taman</label></div>
+        <div class="filter-item"><input type="checkbox" id="s5" data-filter="industrial"/><label for="s5">Industrial Aesthetic</label></div>
+      </div>
+      <hr class="divider"/>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Rating Minimum</div>
+        <div class="rating-bar"><span class="stars-txt">★★★★★</span><div class="bar-bg"><div class="bar-fill" style="width:70%"></div></div><span class="bar-lbl">70%</span></div>
+        <div class="rating-bar"><span class="stars-txt">★★★★☆</span><div class="bar-bg"><div class="bar-fill" style="width:50%"></div></div><span class="bar-lbl">50%</span></div>
+        <div class="rating-bar"><span class="stars-txt">★★★☆☆</span><div class="bar-bg"><div class="bar-fill" style="width:20%"></div></div><span class="bar-lbl">20%</span></div>
+        <div class="rating-bar"><span class="stars-txt">★★☆☆☆</span><div class="bar-bg"><div class="bar-fill" style="width:8%"></div></div><span class="bar-lbl">8%</span></div>
+      </div>
+      <hr class="divider"/>
+      <div class="sidebar-section">
+        <div class="sidebar-title">Jam Buka</div>
+        <div class="filter-item"><input type="checkbox" id="h1" data-filter="open"/><label for="h1">Buka Sekarang</label></div>
+        <div class="filter-item"><input type="checkbox" id="h2" data-filter="midnight"/><label for="h2">Buka sampai 00.00+</label></div>
+        <div class="filter-item"><input type="checkbox" id="h3" data-filter="24h"/><label for="h3">Buka 24 Jam</label></div>
+      </div>
+    </aside>
+
+    <!-- CARDS AREA -->
+    <main class="cards-area">
+      <div class="results-header">
+        <div class="results-count">30 cafe ditemukan <span>di Jakarta Barat</span></div>
+        <div class="sort-wrap">
+          <span class="sort-lbl">Urutkan:</span>
+          <select class="sort-sel">
+            <option>Paling Relevan</option>
+            <option>Rating Tertinggi</option>
+            <option>Terdekat</option>
+            <option>Harga Terendah</option>
+            <option>Ulasan Terbanyak</option>
+          </select>
+        </div>
+      </div>
+      <div class="cards-grid" id="cardsGrid"></div>
+      <div class="empty-state" id="emptyState" hidden>
+        <div class="empty-icon">☕</div>
+        <strong>Belum ada cafe yang cocok.</strong>
+        <span>Coba kurangi filter atau kata pencarian.</span>
+      </div>
+    </main>
+
+    <!-- DETAIL PANEL -->
+    <aside class="detail-panel" id="detailPanel">
+      <!-- filled by JS -->
+    </aside>
+  </div>
+  <section class="partner-section reveal" id="mitra-cafe">
+    <div class="partner-copy">
+      <span class="eyebrow">Untuk pemilik cafe</span>
+      <h2>Ingin cafe kamu muncul di CafeFinder?</h2>
+      <p>Daftarkan cafe kamu supaya lebih mudah ditemukan pengguna yang mencari tempat WFC, nongkrong, family time, sampai cafe dekat transportasi umum.</p>
+      <div class="partner-actions">
+        <button class="partner-btn primary" onclick="showToast('Form pendaftaran mitra segera dibuka ☕')">Daftarkan Cafe</button>
+        <button class="partner-btn" onclick="showToast('Tim CafeFinder akan hubungi untuk paket ads ✨')">Pasang Iklan</button>
+      </div>
+    </div>
+    <div class="partner-benefits">
+      <div class="benefit-card"><strong>Profil cafe lengkap</strong><span>Foto, menu, fasilitas, jam buka, harga, dan akses transportasi.</span></div>
+      <div class="benefit-card"><strong>Promosi & Ads</strong><span>Highlight cafe di homepage, filter kategori, dan rekomendasi mingguan.</span></div>
+      <div class="benefit-card"><strong>Reservasi masuk</strong><span>Bantu calon customer booking meja langsung dari halaman cafe.</span></div>
+    </div>
+  </section>
+
+<footer>
+    <div class="footer-logo">Cafe<span>Finder</span></div>
+    <div class="footer-tagline">"Scroll less, hang more" — Kelompok 3, Kata Leon "Geeeser"</div>
+    <div class="footer-right">© 2025 CafeFinder · Jakarta Barat, Indonesia</div>
+  </footer>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script src="script.js"></script>
+
+</body>
+</html>

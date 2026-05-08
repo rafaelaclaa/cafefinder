@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Forum Komunitas — CafeFinder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body class="forum-page-body">
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+<div id="app" class="forum-app">
+  <nav>
+    <a href="index.html" class="logo"><div class="logo-icon">☕</div>Cafe<span>Finder</span></a>
+    <button class="menu-toggle" type="button" aria-label="Buka menu" aria-expanded="false"><span></span><span></span><span></span></button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Temukan Cafe</a>
+      <a href="forum.html" class="active">Forum</a>
+      <a href="index.html#cardsGrid">Reservasi</a>
+      <a href="index.html#cardsGrid">UMKM Lokal</a>
+    </div>
+    <div class="nav-right"><button class="nav-btn">Masuk</button><button class="nav-btn primary">Daftar Gratis</button></div>
+  </nav>
+
+  <section class="forum-hero">
+    <div class="hero-grain"></div>
+    <div class="forum-hero-content reveal visible">
+      <div class="hero-tag"><div class="pulse"></div> Forum Komunitas CafeFinder</div>
+      <h1>Ngopi bareng komunitas yang <em>sefrekuensi.</em></h1>
+      <p>Diskusi cafe hidden gem, cari teman WFC, ikut event cupping, dan share review jujur dari sesama pencinta cafe.</p>
+    </div>
+  </section>
+
+  <main class="forum-page">
+    <section class="forum-highlight reveal visible">
+      <div>
+        <span class="section-kicker">Komunitas Aktif</span>
+        <h2>Gabung ruang ngobrol sesuai mood kamu.</h2>
+      </div>
+      <a class="forum-cta" href="index.html">Cari cafe dulu →</a>
+    </section>
+    <section class="community-grid forum-grid reveal visible">
+      <article class="community-card"><div class="comm-icon">☕</div><div class="comm-name">Coffee Lovers JKT</div><div class="comm-members">3.2k anggota · 128 posting/minggu</div><div class="comm-desc">Bahas beans, menu signature, review espresso bar, dan rekomendasi cafe specialty Jakarta.</div><div class="comm-join">Gabung →</div></article>
+      <article class="community-card"><div class="comm-icon">💻</div><div class="comm-name">Remote Workers JB</div><div class="comm-members">1.8k anggota · 76 posting/minggu</div><div class="comm-desc">Cari cafe WFC yang tenang, WiFi stabil, colokan banyak, dan nyaman buat kerja lama.</div><div class="comm-join">Gabung →</div></article>
+      <article class="community-card"><div class="comm-icon">📸</div><div class="comm-name">Cafe Hunters ID</div><div class="comm-members">5.4k anggota · 212 posting/minggu</div><div class="comm-desc">Berburu spot aesthetic, hidden gem, dan cafe baru yang cocok buat konten.</div><div class="comm-join">Gabung →</div></article>
+      <article class="community-card"><div class="comm-icon">🎵</div><div class="comm-name">Live Music Night</div><div class="comm-members">920 anggota · 34 posting/minggu</div><div class="comm-desc">Info jadwal live music, open mic, dan cafe malam yang vibes-nya rame.</div><div class="comm-join">Gabung →</div></article>
+      <article class="community-card"><div class="comm-icon">👨‍👩‍👧</div><div class="comm-name">Family Cafe Club</div><div class="comm-members">1.1k anggota · 49 posting/minggu</div><div class="comm-desc">Rekomendasi cafe ramah anak, stroller friendly, parkir aman, dan menu keluarga.</div><div class="comm-join">Gabung →</div></article>
+      <article class="community-card"><div class="comm-icon">🏠</div><div class="comm-name">Dukung UMKM Lokal</div><div class="comm-members">2.7k anggota · 91 posting/minggu</div><div class="comm-desc">Kenalan dengan cafe lokal, cerita owner, promo komunitas, dan gerakan support small business.</div><div class="comm-join">Gabung →</div></article>
+    </section>
+
+    <section class="forum-discussion reveal visible">
+      <div class="section-heading dark">Topik <em>Trending</em></div>
+      <div class="discussion-list">
+        <article><strong>Rekomendasi cafe WFC dekat Grogol yang buka sampai malam?</strong><span>42 balasan · terakhir 8 menit lalu</span></article>
+        <article><strong>Share cafe UMKM lokal dengan manual brew paling enak.</strong><span>31 balasan · terakhir 21 menit lalu</span></article>
+        <article><strong>Tempat live music yang tetap nyaman buat ngobrol?</strong><span>18 balasan · terakhir 1 jam lalu</span></article>
+      </div>
+    </section>
+  </main>
+
+  <footer><div class="footer-logo">Cafe<span>Finder</span></div><div class="footer-tagline">Forum komunitas untuk cari cafe bareng.</div><div class="footer-right">© 2025 CafeFinder</div></footer>
+</div>
+<div class="toast" id="toast"></div>
+<script src="script.js"></script>
+</body>
+</html>
