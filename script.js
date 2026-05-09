@@ -11,7 +11,7 @@ if(cursor&&cursorDot){
 }
 function refreshCursorTargets(){
   if(!cursor) return;
-  document.querySelectorAll('button,a,.chip,.cafe-card,.community-card,.price-btn').forEach(el=>{
+  document.querySelectorAll('button,a,.chip,.cafe-card,.community-card,.price-btn,.hero-slide-card,.modal-close').forEach(el=>{
     if(el.dataset.cursorReady) return;
     el.dataset.cursorReady='true';
     el.addEventListener('mouseenter',()=>{cursor.style.transform='translate(-50%,-50%) scale(1.8)';cursor.style.borderColor='var(--caramel)'});
@@ -54,8 +54,9 @@ const cafeSeeds=[
 ];
 const gradients=['linear-gradient(135deg,#d4a870,#8a5820)','linear-gradient(135deg,#8faf7a,#4a7a3a)','linear-gradient(135deg,#b08060,#60301a)','linear-gradient(135deg,#c9a97a,#7a5230)','linear-gradient(135deg,#a36a47,#4e2c1a)','linear-gradient(135deg,#a7a06f,#5d5130)'];
 const transitNotes=['Dekat halte TransJakarta Grogol','5 menit dari Stasiun Palmerah','Dekat terminal bus Cengkareng','Dekat halte Kebon Jeruk','Dekat akses TransJakarta Puri Beta','Dekat mikrotrans Tanjung Duren','Dekat halte busway Duri Kepa','Dekat angkot Kembangan','Dekat halte Slipi Petamburan','Dekat halte Tomang Mandala'];
+const partnerPlans={0:'Favorit WFC',1:'Ramah Keluarga',3:'Cozy Favorit',16:'Produktif',18:'Specialty Pick'};
 const cafes=cafeSeeds.map((s,i)=>({
-  id:i, emoji:s[0], name:s[1], area:s[2]+', Jakarta Barat', tag:s[3], category:s[4], priceMin:s[5], priceMax:s[6], rating:s[7], reviews:s[8], dist:s[9], closeHour:s[10], categories:s[11], filters:s[12], tags:s[13], transit:transitNotes[i%transitNotes.length],
+  id:i, emoji:s[0], name:s[1], area:s[2]+', Jakarta Barat', tag:s[3], partnerPlan:partnerPlans[i]||'', isPartner:!!partnerPlans[i], category:s[4], priceMin:s[5], priceMax:s[6], rating:s[7], reviews:s[8], dist:s[9], closeHour:s[10], categories:s[11], filters:s[12], tags:s[13], transit:transitNotes[i%transitNotes.length],
   bg:gradients[i%gradients.length], distText:s[9].toFixed(1)+' km', price:`Rp${s[5]}k–${s[6]}k`, status:s[10]===24?'open':(s[10] >= 21 || s[10] <= 2 ? 'open':'closed'),
   statusTxt:s[10]===24?'Buka 24 jam':(s[10]===0?'Buka sampai 00.00':s[10]<3?`Buka sampai 0${s[10]}.00`:`Buka sampai ${s[10]}.00`),
   hours:s[10]===24?'24 Jam':`08.00–${s[10]===0?'00':String(s[10]).padStart(2,'0')}.00`,
@@ -109,6 +110,7 @@ function cafeMatches(c){
 }
 function sorted(list){
   const v=[...list];
+  if(state.sort==='Paling Relevan') v.sort((a,b)=>(b.isPartner-a.isPartner)||b.rating-a.rating);
   if(state.sort==='Rating Tertinggi') v.sort((a,b)=>b.rating-a.rating);
   if(state.sort==='Terdekat') v.sort((a,b)=>a.dist-b.dist);
   if(state.sort==='Harga Terendah') v.sort((a,b)=>a.priceMin-b.priceMin);
@@ -124,6 +126,7 @@ function renderCards(){
         <div class="card-thumb-bg"><img src="cafe-photo.png" alt="Suasana cafe ${c.name}" loading="lazy"></div>
         <div class="card-overlay"></div>
         <div class="card-badge ${badgeClass(c)}">${c.tag} ✓</div>
+        ${c.isPartner?`<div class="partner-ribbon">${c.partnerPlan}</div>`:''}
         <div class="card-fav" onclick="toggleFav(event,this)" id="fav${c.id}">♡</div>
         <div class="card-distance"><svg viewBox="0 0 24 24" style="width:10px;height:10px;stroke:currentColor;fill:none;stroke-width:2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>${c.distText}</div>
       </div>
@@ -136,21 +139,74 @@ function renderCards(){
     </article>`).join('');
   if(resultsCount) resultsCount.innerHTML=`${state.visible.length} cafe ditemukan <span>di Jakarta Barat</span>`;
   if(emptyState) emptyState.hidden=state.visible.length!==0;
-  if(state.visible[0]) renderDetail(state.visible[0].id);
-  else if(document.getElementById('detailPanel')) document.getElementById('detailPanel').innerHTML='<div class="empty-detail">Pilih filter lain untuk melihat detail cafe.</div>';
+  const panel=document.getElementById('detailPanel');
+  if(panel) panel.innerHTML='<div class="empty-detail">Klik salah satu cafe untuk melihat detail lengkap.</div>';
   refreshCursorTargets();
 }
-function renderDetail(id){
-  const panel=document.getElementById('detailPanel');
-  if(!panel) return;
-  const c=cafes.find(x=>x.id===id) || cafes[0];
+function cafeDetailMarkup(c){
   const schedHtml=c.schedule.map(s=>`<tr class="${s.today?'today':''}"><td>${s.day}</td><td>${s.hours}</td></tr>`).join('');
   const reviewHtml=c.reviews_list.map(r=>`<div class="review-card"><div class="review-author">${r.name}<span class="review-stars">${r.stars}</span></div><div class="review-txt">${r.txt}</div>${r.media?`<div class="review-media">${r.media.map(m=>`<div>${m}</div>`).join('')}</div>`:''}</div>`).join('');
   const amenHtml=c.amenities.map(a=>`<div class="amenity"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>${a}</div>`).join('');
-  panel.innerHTML=`<div class="detail-cover"><img src="cafe-photo.png" alt="Suasana cafe ${c.name}"></div><div class="detail-selected-tag">Dipilih</div><div class="d-name">${c.name}</div><div class="d-sub">${c.area} · ${c.distText}</div><div class="d-rating"><span class="d-stars">★★★★★</span><span class="d-rating-txt">${c.rating.toFixed(1)}</span><span class="d-review-count">(${c.reviews} ulasan)</span></div><div class="d-section"><div class="d-label">Info Utama</div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Buka ${c.hours}</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M5 12.55a11 11 0 0 1 14.08 0"/><path d="M1.42 9a16 16 0 0 1 21.16 0"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg><span>WiFi ${c.wifi}</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg><span>${c.price} / orang</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 17h12"/><path d="M8 17v3"/><path d="M16 17v3"/><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M8 7h8"/><path d="M8 11h8"/></svg><span>${c.transit}</span></div></div><div class="d-section"><div class="d-label">Fasilitas</div><div class="amenities">${amenHtml}</div></div><div class="d-section"><div class="d-label">Jam Operasional</div><table class="hours-table">${schedHtml}</table></div><div class="d-section"><div class="d-label">Ulasan Terverifikasi</div>${reviewHtml}</div><button class="btn-reserve-big" onclick="reserve(event,'${c.name}')"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Buat Reservasi</button>`;
-  document.querySelectorAll('.cafe-card').forEach(card=>card.style.outline=card.getAttribute('onclick')===`selectCard(${id})`?'2px solid var(--caramel)':'none');
+  return `<div class="modal-hero-img"><img src="cafe-photo.png" alt="Suasana cafe ${c.name}"></div>
+  <div class="modal-content-scroll">
+    <div class="modal-title-row"><div><div class="detail-selected-tag">${c.isPartner?c.partnerPlan:'CafeFinder Pick'}</div><h2>${c.name}</h2><p>${c.area} · ${c.distText}</p></div><div class="modal-rating"><span>★</span>${c.rating.toFixed(1)}<small>${c.reviews} ulasan</small></div></div>
+    <div class="modal-quick-info">
+      <div><strong>${c.price}</strong><span>/orang</span></div>
+      <div><strong>${c.statusTxt}</strong><span>${c.hours}</span></div>
+      <div><strong>${c.wifi}</strong><span>WiFi</span></div>
+      <div><strong>${c.distText}</strong><span>dari kamu</span></div>
+    </div>
+    <div class="modal-detail-grid">
+      <section class="d-section"><div class="d-label">Info Utama</div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 17h12"/><path d="M8 17v3"/><path d="M16 17v3"/><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M8 7h8"/><path d="M8 11h8"/></svg><span>${c.transit}</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>${c.phone}</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Buka ${c.hours}</span></div></section>
+      <section class="d-section"><div class="d-label">Fasilitas</div><div class="amenities">${amenHtml}</div></section>
+      <section class="d-section"><div class="d-label">Jam Operasional</div><table class="hours-table">${schedHtml}</table></section>
+      <section class="d-section"><div class="d-label">Ulasan Terverifikasi</div>${reviewHtml}</section>
+    </div>
+    <button class="btn-reserve-big" onclick="reserve(event,'${c.name}')"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Buat Reservasi</button>
+  </div>`;
 }
-function selectCard(id){renderDetail(id); const c=cafes.find(x=>x.id===id); if(c) showToast('Menampilkan detail '+c.name+' ☕')}
+function ensureCafeModal(){
+  let modal=document.getElementById('cafeDetailModal');
+  if(modal) return modal;
+  modal=document.createElement('div');
+  modal.id='cafeDetailModal';
+  modal.className='cafe-modal';
+  modal.innerHTML='<div class="cafe-modal-backdrop" onclick="closeCafeModal()"></div><article class="cafe-modal-card"><button class="modal-close" onclick="closeCafeModal()" aria-label="Tutup detail">×</button><div id="cafeModalBody"></div></article>';
+  document.body.appendChild(modal);
+  document.addEventListener('keydown',e=>{if(e.key==='Escape') closeCafeModal();});
+  return modal;
+}
+function openCafeModal(id){
+  const c=cafes.find(x=>x.id===id) || cafes[0];
+  const modal=ensureCafeModal();
+  modal.querySelector('#cafeModalBody').innerHTML=cafeDetailMarkup(c);
+  modal.classList.add('show');
+  document.body.classList.add('modal-open');
+  document.querySelectorAll('.cafe-card').forEach(card=>card.style.outline=card.getAttribute('onclick')===`selectCard(${id})`?'2px solid var(--caramel)':'none');
+  refreshCursorTargets();
+}
+function closeCafeModal(){
+  const modal=document.getElementById('cafeDetailModal');
+  if(modal) modal.classList.remove('show');
+  document.body.classList.remove('modal-open');
+}
+function renderDetail(id){openCafeModal(id)}
+function selectCard(id){openCafeModal(id); const c=cafes.find(x=>x.id===id); if(c) showToast('Menampilkan detail '+c.name+' ☕')}
+function renderHeroSlider(){
+  const track=document.getElementById('heroSliderTrack');
+  const dots=document.getElementById('heroSliderDots');
+  if(!track||!dots) return;
+  const picks=[0,1,3,16,18].map(id=>cafes.find(c=>c.id===id)).filter(Boolean);
+  let active=0;
+  track.innerHTML=picks.map((c,i)=>`<article class="hero-slide-card ${i===0?'active':''}" onclick="selectCard(${c.id})"><div class="hero-slide-img"><img src="cafe-photo.png" alt="${c.name}"></div><div class="hero-slide-body"><span>${c.partnerPlan||'CafeFinder Pick'}</span><h3>${c.name}</h3><p>${c.area.split(',')[0]} · ${c.distText}</p><div><b>★ ${c.rating.toFixed(1)}</b><b>${c.tags[0]}</b></div></div></article>`).join('');
+  dots.innerHTML=picks.map((_,i)=>`<button class="${i===0?'active':''}" type="button" aria-label="Slide ${i+1}"></button>`).join('');
+  const cards=[...track.querySelectorAll('.hero-slide-card')];
+  const dotBtns=[...dots.querySelectorAll('button')];
+  function show(i){cards[active]?.classList.remove('active');dotBtns[active]?.classList.remove('active');active=i;cards[active]?.classList.add('active');dotBtns[active]?.classList.add('active');}
+  dotBtns.forEach((btn,i)=>btn.addEventListener('click',()=>show(i)));
+  setInterval(()=>show((active+1)%cards.length),500);
+  refreshCursorTargets();
+}
 function setChip(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.category=el.dataset.category||'all';renderCards();showToast('Filter kategori diperbarui ✓')}
 function togglePrice(el){el.classList.toggle('active');renderCards();}
 function toggleFav(e,el){e.stopPropagation();const liked=el.classList.toggle('liked');el.textContent=liked?'♥':'♡';el.style.color=liked?'#e74c3c':'';showToast(liked?'Ditambahkan ke Favorit ♥':'Dihapus dari Favorit')}
@@ -172,3 +228,29 @@ if(menuToggle&&navLinks){
   navLinks.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{navLinks.classList.remove('open');menuToggle.classList.remove('is-open');menuToggle.setAttribute('aria-expanded','false');}));
 }
 renderCards();
+
+
+function switchAuth(mode){
+  document.querySelectorAll('.auth-tab').forEach(tab=>tab.classList.toggle('active',tab.dataset.authTab===mode));
+  document.querySelectorAll('.auth-form').forEach(form=>form.classList.remove('active'));
+  const target=document.getElementById(mode==='signup'?'signupForm':'loginForm');
+  if(target) target.classList.add('active');
+}
+function handleSignup(e){
+  e.preventDefault();
+  const form=e.currentTarget;
+  const name=form.querySelector('input[type="text"]')?.value || 'User CafeFinder';
+  const email=form.querySelector('input[type="email"]')?.value || '';
+  localStorage.setItem('cafefinderUser',JSON.stringify({name,email,createdAt:new Date().toISOString()}));
+  showToast('Akun berhasil dibuat. Kamu sudah masuk ✨');
+  setTimeout(()=>{window.location.href='index.html'},900);
+}
+function handleLogin(e){
+  e.preventDefault();
+  const form=e.currentTarget;
+  const email=form.querySelector('input[type="email"]')?.value || '';
+  localStorage.setItem('cafefinderUser',JSON.stringify({name:'CafeFinder User',email,lastLogin:new Date().toISOString()}));
+  showToast('Berhasil masuk ke CafeFinder ☕');
+  setTimeout(()=>{window.location.href='index.html'},900);
+}
+renderHeroSlider();

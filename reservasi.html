@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Reservasi — CafeFinder</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+<style>
+
+.reservasi-hero {
+  background: var(--espresso);
+  padding: 72px 48px 64px;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  gap: 60px;
+}
+.reservasi-hero .hero-bg-circle:nth-child(1){width:380px;height:380px;right:-60px;top:-80px}
+.reservasi-hero .hero-bg-circle:nth-child(2){width:180px;height:180px;left:40%;bottom:-50px;opacity:.04}
+.reservasi-hero-text { position:relative;z-index:1;max-width:620px }
+.reservasi-hero-text > * { animation: heroReveal .7s ease both }
+.reservasi-hero-text > :nth-child(1){animation-delay:.1s}
+.reservasi-hero-text > :nth-child(2){animation-delay:.22s}
+.reservasi-hero-text > :nth-child(3){animation-delay:.34s}
+.reservasi-hero-text > :nth-child(4){animation-delay:.46s}
+.reservasi-hero h1 {
+  font-family:'Playfair Display',serif;
+  font-size: 44px; font-weight:700;
+  color: var(--sand); line-height:1.1; margin-bottom:14px;
+}
+.reservasi-hero h1 em { color:var(--caramel); font-style:italic }
+.reservasi-hero p { color:rgba(240,218,174,.65); font-size:15px; line-height:1.75; margin-bottom:28px }
+.hero-search-cafe {
+  display:flex; gap:0;
+  background:rgba(255,255,255,.08);
+  border:1px solid rgba(240,218,174,.2);
+  border-radius:12px; padding:6px;
+  max-width:420px;
+  transition: border-color .2s, background .2s;
+}
+.hero-search-cafe:focus-within {
+  border-color:rgba(137,93,43,.6);
+  background:rgba(255,255,255,.12);
+}
+.hero-search-cafe input {
+  flex:1; background:transparent; border:none; outline:none;
+  padding:8px 14px; color:var(--sand);
+  font-family:'DM Sans',sans-serif; font-size:14px;
+}
+.hero-search-cafe input::placeholder { color:rgba(240,218,174,.35) }
+.hero-search-cafe button {
+  background:var(--cinnamon); color:var(--sand);
+  border:none; padding:10px 22px; border-radius:8px;
+  font-size:13px; font-family:'DM Sans',sans-serif;
+  font-weight:500; cursor:pointer;
+  display:flex; align-items:center; gap:7px;
+  transition:all .2s; white-space:nowrap;
+}
+.hero-search-cafe button svg { width:14px;height:14px;stroke:currentColor;fill:none }
+.hero-search-cafe button:hover { background:#7c4430; transform:translateY(-1px) }
+
+/* HERO STATS ROW */
+.hero-res-stats {
+  display:flex; gap:28px; margin-top:28px; flex-wrap:wrap;
+}
+.hero-res-stat .num {
+  font-family:'Playfair Display',serif;
+  font-size:24px; font-weight:700; color:var(--sand);
+}
+.hero-res-stat .lbl { font-size:11px; color:rgba(240,218,174,.5); margin-top:2px }
+
+/* HERO ILLUSTRATION (right) */
+.hero-booking-preview {
+  position:relative; z-index:1; flex-shrink:0;
+  animation: heroReveal .8s ease .5s both;
+  display:flex; flex-direction:column; gap:12px;
+}
+.hbp-card {
+  background:rgba(255,255,255,.07);
+  border:1px solid rgba(240,218,174,.12);
+  border-radius:16px; padding:16px 20px;
+  min-width:220px;
+  transition: transform .3s, background .3s;
+  animation: cardFloat 5s ease-in-out infinite;
+}
+.hbp-card:nth-child(2) { animation-delay:1.2s; margin-left:24px }
+.hbp-card:hover { background:rgba(255,255,255,.12); transform:translateY(-5px) !important }
+.hbp-cafe-row { display:flex; align-items:center; gap:10px; margin-bottom:10px }
+.hbp-emoji { font-size:26px }
+.hbp-cname { font-size:13px; font-weight:500; color:var(--sand) }
+.hbp-area  { font-size:10.5px; color:rgba(240,218,174,.5) }
+.hbp-info  { display:flex; gap:8px; flex-wrap:wrap }
+.hbp-chip  {
+  background:rgba(137,93,43,.3); border:1px solid rgba(137,93,43,.4);
+  color:var(--sand); font-size:10px; padding:3px 10px; border-radius:10px; font-weight:500;
+}
+.hbp-chip.green { background:rgba(58,124,58,.3); border-color:rgba(58,124,58,.4) }
+
+/* ============================================================
+   MAIN RESERVATION LAYOUT
+   ============================================================ */
+.res-page {
+  display:flex; gap:0; min-height:calc(100vh - 60px);
+  background:var(--cream);
+}
+
+/* LEFT — cafe list panel */
+.res-cafe-list {
+  width:300px; min-width:300px;
+  background:var(--white);
+  border-right:1px solid #e8dcc8;
+  display:flex; flex-direction:column;
+  animation: sideIn .6s ease both;
+}
+.res-list-header {
+  padding:18px 20px 14px;
+  border-bottom:1px solid #f0e8d8;
+  position:sticky; top:60px; background:var(--white); z-index:10;
+}
+.res-list-title { font-size:13px; font-weight:600; color:var(--text-dark); margin-bottom:10px }
+.res-list-search {
+  display:flex; gap:0;
+  background:var(--cream);
+  border:1px solid #d4c5ae;
+  border-radius:8px; overflow:hidden;
+}
+.res-list-search input {
+  flex:1; background:transparent; border:none; outline:none;
+  padding:7px 12px; font-family:'DM Sans',sans-serif; font-size:12.5px;
+  color:var(--text-dark);
+}
+.res-list-search input::placeholder { color:var(--text-light) }
+.res-list-search button {
+  background:none; border:none; cursor:pointer;
+  padding:0 10px; color:var(--text-light);
+  display:flex;align-items:center;
+}
+.res-list-search button svg { width:14px;height:14px;stroke:currentColor;fill:none }
+.res-cafe-items { overflow-y:auto; flex:1 }
+.res-cafe-items::-webkit-scrollbar { width:4px }
+.res-cafe-items::-webkit-scrollbar-thumb { background:#d4c5ae; border-radius:4px }
+.res-cafe-item {
+  display:flex; align-items:center; gap:12px;
+  padding:14px 20px; border-bottom:1px solid #f5ede0;
+  cursor:pointer; transition: background .15s;
+  position:relative;
+}
+.res-cafe-item:hover { background:var(--cream) }
+.res-cafe-item.active {
+  background:var(--sand);
+  border-left:3px solid var(--cinnamon);
+}
+.res-cafe-thumb {
+  width:46px; height:46px; border-radius:10px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px; flex-shrink:0; overflow:hidden;
+}
+.res-cafe-thumb img { width:100%; height:100%; object-fit:cover }
+.res-cafe-info { flex:1; min-width:0 }
+.res-cafe-item-name {
+  font-size:13px; font-weight:600; color:var(--text-dark);
+  white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+  margin-bottom:2px;
+}
+.res-cafe-item-area { font-size:11px; color:var(--text-light) }
+.res-cafe-item-meta {
+  display:flex; align-items:center; gap:6px; margin-top:4px;
+}
+.res-star { font-size:10px; color:var(--caramel) }
+.res-rv { font-size:10.5px; font-weight:500; color:var(--text-dark) }
+.res-dist { font-size:10px; color:var(--text-light) }
+.res-status-dot {
+  width:6px; height:6px; border-radius:50%; flex-shrink:0;
+  margin-left:auto;
+}
+.res-status-dot.open  { background:#3a7c3a }
+.res-status-dot.closed{ background:#c0392b }
+
+/* CENTER — booking form */
+.res-form-area {
+  flex:1; padding:28px 32px;
+  overflow-y:auto;
+}
+.res-form-area::-webkit-scrollbar { width:4px }
+.res-form-area::-webkit-scrollbar-thumb { background:#d4c5ae; border-radius:4px }
+
+/* Selected cafe bar */
+.selected-cafe-bar {
+  display:flex; align-items:center; gap:14px;
+  background:var(--espresso);
+  border-radius:14px; padding:16px 20px;
+  margin-bottom:24px;
+  transition: opacity .3s;
+  animation: fadeUp .5s ease both;
+}
+.scb-thumb {
+  width:52px; height:52px; border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px; flex-shrink:0; overflow:hidden;
+}
+.scb-thumb img { width:100%;height:100%;object-fit:cover }
+.scb-info { flex:1; min-width:0 }
+.scb-name {
+  font-family:'Playfair Display',serif;
+  font-size:17px; font-weight:700; color:var(--sand); margin-bottom:2px;
+}
+.scb-meta { font-size:12px; color:rgba(240,218,174,.6) }
+.scb-meta span { margin-right:12px }
+.scb-rating {
+  display:flex; align-items:center; gap:5px;
+  background:rgba(240,218,174,.12);
+  border:1px solid rgba(240,218,174,.18);
+  padding:5px 12px; border-radius:20px;
+  flex-shrink:0;
+}
+.scb-rating .star { color:var(--caramel); font-size:12px }
+.scb-rating .rv { font-size:13px; font-weight:500; color:var(--sand) }
+
+/* Step indicator */
+.steps-bar {
+  display:flex; align-items:center; gap:0;
+  margin-bottom:28px;
+  animation: fadeUp .5s ease .1s both;
+}
+.step {
+  display:flex; align-items:center; gap:8px;
+  flex:1;
+}
+.step-circle {
+  width:30px; height:30px; border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-size:13px; font-weight:600;
+  border:2px solid #d4c5ae;
+  color:var(--text-light);
+  background:var(--white);
+  transition: all .3s; flex-shrink:0;
+}
+.step.active .step-circle {
+  background:var(--espresso); border-color:var(--espresso);
+  color:var(--sand);
+}
+.step.done .step-circle {
+  background:var(--caramel); border-color:var(--caramel);
+  color:#fff;
+}
+.step-label { font-size:12px; font-weight:500; color:var(--text-light) }
+.step.active .step-label { color:var(--espresso); font-weight:600 }
+.step.done  .step-label { color:var(--caramel) }
+.step-line { flex:1; height:2px; background:#e8dcc8; margin:0 8px; min-width:24px }
+.step.done ~ .step-line,
+.step.done + .step-line { background:var(--caramel) }
+
+/* FORM PANELS */
+.form-panel {
+  display:none;
+  animation: fadeUp .4s ease both;
+}
+.form-panel.active { display:block }
+
+.form-section-title {
+  font-family:'Playfair Display',serif;
+  font-size:18px; font-weight:600; color:var(--text-dark);
+  margin-bottom:20px; padding-bottom:10px;
+  border-bottom:1px solid #e8dcc8;
+  display:flex; align-items:center; gap:8px;
+}
+.form-section-title svg {
+  width:18px; height:18px; stroke:var(--cinnamon); fill:none;
+}
+
+/* DATE PICKER */
+.date-section { margin-bottom:28px }
+.date-scroll {
+  display:flex; gap:8px; overflow-x:auto; padding-bottom:4px;
+  scrollbar-width:none;
+}
+.date-scroll::-webkit-scrollbar { display:none }
+.date-pill {
+  display:flex; flex-direction:column; align-items:center;
+  padding:10px 16px; border-radius:12px; cursor:pointer;
+  border:1.5px solid #d4c5ae; background:var(--white);
+  transition:all .2s; min-width:54px; flex-shrink:0;
+}
+.date-pill .dp-day { font-size:10px; color:var(--text-light); margin-bottom:3px; font-weight:500 }
+.date-pill .dp-num { font-size:18px; font-weight:600; color:var(--text-dark) }
+.date-pill.active {
+  background:var(--espresso); border-color:var(--espresso);
+}
+.date-pill.active .dp-day,
+.date-pill.active .dp-num { color:var(--sand) }
+.date-pill:hover:not(.active) { background:var(--cream2); border-color:var(--caramel) }
+.date-pill.disabled { opacity:.35; pointer-events:none }
+
+/* Full calendar toggle */
+.cal-toggle-btn {
+  display:flex; align-items:center; gap:6px;
+  background:none; border:1px dashed #d4c5ae; border-radius:8px;
+  padding:7px 14px; font-size:12px; color:var(--text-mid);
+  cursor:pointer; font-family:'DM Sans',sans-serif;
+  transition:all .2s; margin-top:10px;
+}
+.cal-toggle-btn:hover { background:var(--cream2); border-color:var(--caramel) }
+.cal-toggle-btn svg { width:14px;height:14px;stroke:currentColor;fill:none }
+
+/* Calendar grid */
+.cal-grid { display:none; margin-top:14px }
+.cal-grid.open { display:block }
+.cal-header {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.cal-month { font-size:13.5px; font-weight:600; color:var(--text-dark) }
+.cal-nav {
+  background:none; border:1px solid #d4c5ae;
+  width:28px; height:28px; border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer; transition:all .2s; color:var(--text-mid);
+}
+.cal-nav:hover { background:var(--espresso); border-color:var(--espresso); color:var(--sand) }
+.cal-nav svg { width:13px;height:13px;stroke:currentColor;fill:none }
+.cal-weekdays {
+  display:grid; grid-template-columns:repeat(7,1fr);
+  gap:2px; margin-bottom:4px;
+}
+.cal-weekday { text-align:center; font-size:10px; color:var(--text-light); font-weight:600; padding:4px 0 }
+.cal-days { display:grid; grid-template-columns:repeat(7,1fr); gap:3px }
+.cal-day {
+  aspect-ratio:1; display:flex; align-items:center; justify-content:center;
+  font-size:12.5px; color:var(--text-mid);
+  border-radius:8px; cursor:pointer;
+  transition:all .15s; border:1.5px solid transparent;
+}
+.cal-day:hover:not(.empty):not(.disabled):not(.active) {
+  background:var(--cream2); border-color:var(--caramel);
+}
+.cal-day.active {
+  background:var(--espresso); color:var(--sand);
+  border-color:var(--espresso); font-weight:600;
+}
+.cal-day.today { border-color:var(--caramel); color:var(--caramel); font-weight:600 }
+.cal-day.empty { pointer-events:none }
+.cal-day.disabled { opacity:.3; pointer-events:none; text-decoration:line-through }
+
+/* TIME SLOTS */
+.time-section { margin-bottom:28px }
+.time-label-row {
+  display:flex; align-items:center; gap:8px;
+  margin-bottom:12px;
+}
+.time-period {
+  font-size:11px; font-weight:600; text-transform:uppercase;
+  letter-spacing:.7px; color:var(--text-light);
+}
+.time-grid { display:flex; flex-wrap:wrap; gap:8px; margin-bottom:16px }
+.time-slot {
+  padding:8px 16px; border-radius:9px;
+  font-size:13px; font-weight:400;
+  border:1.5px solid #d4c5ae; background:var(--white);
+  color:var(--text-mid); cursor:pointer;
+  transition:all .2s;
+}
+.time-slot:hover:not(.disabled) { border-color:var(--caramel); background:var(--cream2) }
+.time-slot.active { background:var(--espresso); border-color:var(--espresso); color:var(--sand); font-weight:500 }
+.time-slot.disabled { opacity:.35; pointer-events:none; background:#f5f0e8; text-decoration:line-through }
+.time-slot.popular::after {
+  content:'🔥';
+  font-size:9px; margin-left:4px;
+}
+
+/* PARTY SIZE */
+.party-section { margin-bottom:28px }
+.party-counter {
+  display:flex; align-items:center; gap:0;
+  background:var(--white); border:1.5px solid #d4c5ae;
+  border-radius:12px; overflow:hidden; width:fit-content;
+}
+.party-btn {
+  width:46px; height:46px; border:none; background:none;
+  font-size:20px; cursor:pointer; color:var(--text-mid);
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s; flex-shrink:0;
+}
+.party-btn:hover { background:var(--cream2); color:var(--espresso) }
+.party-num {
+  min-width:56px; text-align:center;
+  font-size:20px; font-weight:600; color:var(--text-dark);
+  border-left:1px solid #e8dcc8; border-right:1px solid #e8dcc8;
+  padding:0 8px; line-height:46px;
+}
+.party-note {
+  margin-top:8px; font-size:12px; color:var(--text-light);
+  display:flex; align-items:center; gap:5px;
+}
+.party-note svg { width:13px;height:13px;stroke:var(--text-light);fill:none }
+.table-types { display:flex; gap:8px; margin-top:14px; flex-wrap:wrap }
+.table-type {
+  padding:7px 14px; border-radius:10px;
+  font-size:12px; border:1.5px solid #d4c5ae;
+  background:var(--cream); color:var(--text-mid);
+  cursor:pointer; transition:all .2s;
+  display:flex;align-items:center;gap:6px;
+}
+.table-type:hover { border-color:var(--caramel); background:var(--cream2) }
+.table-type.active { background:var(--espresso); border-color:var(--espresso); color:var(--sand) }
+.table-type .tt-icon { font-size:14px }
+
+/* STEP 2 — GUEST DETAILS */
+.form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px }
+.form-group { display:flex; flex-direction:column; gap:6px }
+.form-group.full { grid-column:1/-1 }
+.form-label { font-size:12px; font-weight:600; color:var(--text-dark) }
+.form-label .req { color:var(--cinnamon) }
+.form-input, .form-select, .form-textarea {
+  background:var(--white); border:1.5px solid #d4c5ae;
+  border-radius:9px; padding:10px 14px;
+  font-family:'DM Sans',sans-serif; font-size:13.5px;
+  color:var(--text-dark); outline:none;
+  transition:border-color .2s, box-shadow .2s;
+}
+.form-input:focus, .form-select:focus, .form-textarea:focus {
+  border-color:var(--caramel);
+  box-shadow:0 0 0 3px rgba(137,93,43,.1);
+}
+.form-input::placeholder, .form-textarea::placeholder { color:#c0b09a }
+.form-textarea { resize:vertical; min-height:80px }
+.form-select { cursor:pointer; appearance:none;
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23A3966A' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
+  background-repeat:no-repeat; background-position:right 12px center; background-size:16px;
+  padding-right:36px;
+}
+.form-char-count { font-size:11px; color:var(--text-light); text-align:right; margin-top:2px }
+
+/* OCCASION TAGS */
+.occasion-wrap { display:flex; gap:7px; flex-wrap:wrap }
+.occasion-tag {
+  padding:6px 14px; border-radius:20px;
+  font-size:12px; border:1.5px solid #d4c5ae;
+  background:var(--cream); color:var(--text-mid);
+  cursor:pointer; transition:all .2s;
+}
+.occasion-tag:hover { border-color:var(--caramel) }
+.occasion-tag.active { background:var(--caramel); border-color:var(--caramel); color:#fff }
+
+/* STEP 3 — REVIEW */
+.review-section { background:var(--white); border-radius:14px; padding:20px; margin-bottom:16px; border:1px solid #e8dcc8 }
+.review-section-title { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-light); font-weight:600; margin-bottom:12px }
+.review-row { display:flex; justify-content:space-between; margin-bottom:7px; font-size:13px }
+.review-row .rl { color:var(--text-light) }
+.review-row .rv { color:var(--text-dark); font-weight:500 }
+.review-row.highlight .rv { color:var(--cinnamon); font-weight:600 }
+.review-divider { border:none; border-top:1px solid #f0e8d8; margin:10px 0 }
+.cancel-policy {
+  background:rgba(144,85,60,.07); border:1px solid rgba(144,85,60,.2);
+  border-radius:10px; padding:12px 14px;
+  font-size:12px; color:var(--text-mid); line-height:1.6;
+  display:flex; gap:10px; align-items:flex-start;
+  margin-bottom:20px;
+}
+.cancel-policy svg { width:16px;height:16px;stroke:var(--cinnamon);fill:none;flex-shrink:0;margin-top:1px }
+
+/* NAVIGATION BUTTONS */
+.form-nav {
+  display:flex; gap:12px; margin-top:28px;
+  padding-top:20px; border-top:1px solid #e8dcc8;
+}
+.btn-back {
+  padding:12px 24px; border-radius:10px;
+  font-size:13.5px; font-family:'DM Sans',sans-serif;
+  font-weight:500; cursor:pointer; transition:all .2s;
+  background:var(--cream); color:var(--text-mid);
+  border:1.5px solid #d4c5ae; display:flex;align-items:center;gap:7px;
+}
+.btn-back:hover { background:var(--cream2); border-color:var(--caramel) }
+.btn-back svg { width:15px;height:15px;stroke:currentColor;fill:none }
+.btn-next {
+  flex:1; padding:13px 24px; border-radius:10px;
+  font-size:14px; font-family:'DM Sans',sans-serif;
+  font-weight:600; cursor:pointer; transition:all .2s;
+  background:var(--espresso); color:var(--sand);
+  border:none; display:flex;align-items:center;justify-content:center;gap:8px;
+  letter-spacing:.3px;
+}
+.btn-next:hover { background:#3a2010; transform:translateY(-2px) }
+.btn-next:active { transform:translateY(0) scale(.98) }
+.btn-next svg { width:16px;height:16px;stroke:currentColor;fill:none }
+.btn-next.confirm { background:var(--cinnamon) }
+.btn-next.confirm:hover { background:#7c4430 }
+
+/* SUCCESS SCREEN */
+.success-screen {
+  display:none; text-align:center;
+  padding:48px 32px;
+  animation:fadeUp .6s ease both;
+}
+.success-screen.show { display:block }
+.success-icon {
+  width:80px; height:80px; border-radius:50%;
+  background:rgba(58,124,58,.1); border:2px solid rgba(58,124,58,.3);
+  display:flex;align-items:center;justify-content:center;
+  font-size:36px; margin:0 auto 20px;
+  animation: successPop .5s cubic-bezier(.34,1.56,.64,1) .1s both;
+}
+@keyframes successPop { from{transform:scale(0) rotate(-20deg)} to{transform:scale(1) rotate(0)} }
+.success-screen h2 {
+  font-family:'Playfair Display',serif;
+  font-size:26px; color:var(--text-dark); margin-bottom:8px;
+}
+.success-screen p { font-size:14px; color:var(--text-light); line-height:1.7; max-width:360px; margin:0 auto 28px }
+.booking-code {
+  background:var(--sand); border-radius:12px; padding:16px 24px;
+  margin:0 auto 24px; width:fit-content;
+}
+.booking-code .code-label { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-mid); margin-bottom:4px }
+.booking-code .code-val {
+  font-family:'Playfair Display',serif;
+  font-size:24px; font-weight:700; color:var(--espresso); letter-spacing:3px;
+}
+.success-actions { display:flex; gap:10px; justify-content:center; flex-wrap:wrap }
+.suc-btn {
+  padding:10px 22px; border-radius:10px;
+  font-size:13px; font-family:'DM Sans',sans-serif;
+  font-weight:500; cursor:pointer; transition:all .2s;
+  display:flex;align-items:center;gap:7px;
+}
+.suc-btn.primary { background:var(--espresso); color:var(--sand); border:none }
+.suc-btn.primary:hover { background:#3a2010 }
+.suc-btn.sec { background:var(--cream); color:var(--text-mid); border:1.5px solid #d4c5ae }
+.suc-btn.sec:hover { background:var(--cream2) }
+.suc-btn svg { width:14px;height:14px;stroke:currentColor;fill:none }
+
+/* RIGHT — booking summary sidebar */
+.res-summary {
+  width:260px; min-width:260px;
+  background:var(--white); border-left:1px solid #e8dcc8;
+  padding:22px 18px;
+  position:sticky; top:60px; height:fit-content;
+  animation: detailIn .6s ease both;
+}
+.summary-title {
+  font-size:13px; font-weight:600; color:var(--text-dark);
+  margin-bottom:16px; padding-bottom:10px;
+  border-bottom:1px solid #f0e8d8;
+}
+.summary-cafe {
+  display:flex; align-items:center; gap:10px; margin-bottom:16px;
+}
+.sum-thumb {
+  width:40px; height:40px; border-radius:8px;
+  font-size:20px; display:flex;align-items:center;justify-content:center;
+  flex-shrink:0; overflow:hidden;
+}
+.sum-thumb img { width:100%;height:100%;object-fit:cover }
+.sum-cname { font-size:13px; font-weight:600; color:var(--text-dark); margin-bottom:1px }
+.sum-area  { font-size:11px; color:var(--text-light) }
+.summary-divider { border:none; border-top:1px solid #f0e8d8; margin:12px 0 }
+.sum-row {
+  display:flex; align-items:flex-start; gap:8px;
+  margin-bottom:10px; font-size:12.5px;
+}
+.sum-row svg { width:14px;height:14px;stroke:var(--cinnamon);fill:none;flex-shrink:0;margin-top:1px }
+.sum-row .sum-key { color:var(--text-light); min-width:60px }
+.sum-row .sum-val { color:var(--text-dark); font-weight:500; flex:1 }
+.sum-row .sum-val.placeholder { color:#c0b09a; font-weight:400; font-style:italic; font-size:11.5px }
+.sum-facilities { display:flex; flex-wrap:wrap; gap:5px; margin-bottom:12px }
+.sum-fac {
+  background:var(--cream); border:1px solid #e0d0ba;
+  border-radius:6px; padding:3px 8px;
+  font-size:10.5px; color:var(--text-mid);
+  display:flex;align-items:center;gap:4px;
+}
+.sum-fac svg { width:11px;height:11px;stroke:var(--caramel);fill:none }
+.sum-note {
+  background:rgba(144,85,60,.07);
+  border-radius:8px; padding:10px 12px;
+  font-size:11.5px; color:var(--text-mid);
+  line-height:1.6; margin-top:4px;
+}
+.sum-note strong { color:var(--cinnamon) }
+
+/* RECENT BOOKINGS */
+.recent-bookings { margin-top:24px; padding-top:16px; border-top:1px solid #f0e8d8 }
+.rb-title { font-size:11px; text-transform:uppercase; letter-spacing:.8px; color:var(--text-light); font-weight:600; margin-bottom:10px }
+.rb-item {
+  display:flex;align-items:center;gap:9px;
+  margin-bottom:9px;
+}
+.rb-emoji { font-size:16px }
+.rb-info { flex:1; min-width:0 }
+.rb-name { font-size:11.5px; font-weight:500; color:var(--text-dark); white-space:nowrap; overflow:hidden; text-overflow:ellipsis }
+.rb-date { font-size:10.5px; color:var(--text-light) }
+.rb-badge {
+  font-size:9.5px; font-weight:500; padding:2px 7px; border-radius:6px;
+}
+.rb-badge.confirmed { background:#e8f4e8; color:var(--green) }
+.rb-badge.pending   { background:#f4f0e8; color:var(--caramel) }
+
+/* ============================================================
+   RESPONSIVE
+   ============================================================ */
+@media(max-width:1100px){
+  .res-summary { display:none }
+}
+@media(max-width:860px){
+  .reservasi-hero { padding:48px 24px 40px; flex-direction:column; gap:28px }
+  .reservasi-hero h1 { font-size:34px }
+  .hero-booking-preview { flex-direction:row; align-self:stretch }
+  .hbp-card { flex:1 }
+  .hbp-card:nth-child(2) { margin-left:0; margin-top:0 }
+  .res-cafe-list { display:none }
+  .res-page { flex-direction:column }
+  .res-form-area { padding:20px 16px }
+  .form-grid { grid-template-columns:1fr }
+  .form-group.full { grid-column:1 }
+  .selected-cafe-bar { flex-wrap:wrap }
+  .mobile-cafe-picker {
+    display:flex !important;
+    gap:8px; overflow-x:auto;
+    padding:12px 16px;
+    background:var(--white);
+    border-bottom:1px solid #e8dcc8;
+    scrollbar-width:none;
+  }
+  .mobile-cafe-picker::-webkit-scrollbar { display:none }
+  .mcp-item {
+    display:flex; flex-direction:column; align-items:center; gap:5px;
+    padding:10px 14px; border-radius:12px;
+    border:1.5px solid #d4c5ae; background:var(--cream);
+    cursor:pointer; transition:all .2s; min-width:80px; text-align:center;
+    flex-shrink:0;
+  }
+  .mcp-item.active { background:var(--espresso); border-color:var(--espresso) }
+  .mcp-item.active .mcp-name { color:var(--sand) }
+  .mcp-item.active .mcp-area { color:rgba(240,218,174,.6) }
+  .mcp-emoji { font-size:22px }
+  .mcp-name { font-size:11px; font-weight:500; color:var(--text-dark); line-height:1.2 }
+  .mcp-area { font-size:10px; color:var(--text-light) }
+  .steps-bar { gap:4px }
+  .step-label { display:none }
+  .step-line { min-width:12px }
+}
+@media(max-width:600px){
+  .reservasi-hero { padding:36px 16px 32px }
+  .reservasi-hero h1 { font-size:28px }
+  .hero-res-stats { gap:16px }
+  .hero-res-stat .num { font-size:20px }
+  .hero-booking-preview { display:none }
+  .date-pill { padding:8px 12px; min-width:46px }
+  .time-grid { gap:6px }
+  .time-slot { padding:7px 12px; font-size:12px }
+  .form-nav { flex-direction:column-reverse }
+  .btn-back { width:100%; justify-content:center }
+  .table-types { flex-wrap:wrap }
+}
+</style>
+</head>
+
+<body class="reservasi-page-body">
+<div class="cursor" id="cursor"></div>
+<div class="cursor-dot" id="cursorDot"></div>
+
+<div id="app">
+
+  <!-- NAV -->
+  <nav>
+    <a href="index.html" class="logo">
+      <div class="logo-icon">☕</div>
+      Cafe<span>Finder</span>
+    </a>
+    <button class="menu-toggle" type="button" aria-label="Buka menu" aria-expanded="false">
+      <span></span><span></span><span></span>
+    </button>
+    <div class="nav-links" id="navLinks">
+      <a href="index.html">Temukan Cafe</a>
+      <a href="forum.html">Forum</a>
+      <a href="reservasi.html" class="active">Reservasi</a>
+      <a href="mitra-cafe.html">Mitra Cafe</a>
+    </div>
+    <div class="nav-right">
+      <a class="nav-btn" href="login.html">Masuk</a>
+      <a class="nav-btn primary" href="login.html?mode=signup">Daftar Gratis</a>
+    </div>
+  </nav>
+
+  <!-- HERO -->
+  <section class="reservasi-hero">
+    <div class="hero-bg-circle"></div>
+    <div class="hero-bg-circle"></div>
+    <div class="hero-grain"></div>
+
+    <div class="reservasi-hero-text">
+      <div class="hero-tag"><div class="pulse"></div> Reservasi Meja Sekarang</div>
+      <h1>Booking tempat,<br><em>tanpa ribet.</em></h1>
+      <p>Pilih cafe, tentukan tanggal dan waktu, selesai dalam hitungan detik. Konfirmasi langsung via WhatsApp.</p>
+      <div class="hero-search-cafe">
+        <input type="text" id="heroSearch" placeholder="Cari nama cafe..."/>
+        <button onclick="heroSearchCafe()">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+          Cari
+        </button>
+      </div>
+      <div class="hero-res-stats">
+        <div class="hero-res-stat"><div class="num">2.4k+</div><div class="lbl">Cafe Terdaftar</div></div>
+        <div class="hero-res-stat"><div class="num">9.8k+</div><div class="lbl">Reservasi Berhasil</div></div>
+        <div class="hero-res-stat"><div class="num">H-1</div><div class="lbl">Maks Booking</div></div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- MOBILE CAFE PICKER (hidden on desktop) -->
+  <div class="mobile-cafe-picker" id="mobileCafePicker" style="display:none"></div>
+
+  <!-- MAIN RESERVATION LAYOUT -->
+  <div class="res-page">
+
+    <!-- LEFT — Cafe list -->
+    <div class="res-cafe-list" id="cafeList">
+      <div class="res-list-header">
+        <div class="res-list-title">Pilih Cafe</div>
+        <div class="res-list-search">
+          <input type="text" id="cafeSearch" placeholder="Cari cafe..." oninput="filterCafeList(this.value)"/>
+          <button><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg></button>
+        </div>
+      </div>
+      <div class="res-cafe-items" id="cafeItems"></div>
+    </div>
+
+    <!-- CENTER — Booking form -->
+    <div class="res-form-area" id="formArea">
+
+      <!-- Selected cafe bar -->
+      <div class="selected-cafe-bar" id="selectedCafeBar">
+        <div class="scb-thumb" id="scbThumb">📚</div>
+        <div class="scb-info">
+          <div class="scb-name" id="scbName">Kopi & Kata Literasi</div>
+          <div class="scb-meta">
+            <span id="scbArea">Grogol, Jakarta Barat</span>
+            <span id="scbHours">08.00–23.00</span>
+          </div>
+        </div>
+        <div class="scb-rating">
+          <span class="star">★</span>
+          <span class="rv" id="scbRating">4.9</span>
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="steps-bar" id="stepsBar">
+        <div class="step active" id="step1">
+          <div class="step-circle">1</div>
+          <div class="step-label">Jadwal</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step2">
+          <div class="step-circle">2</div>
+          <div class="step-label">Detail Tamu</div>
+        </div>
+        <div class="step-line"></div>
+        <div class="step" id="step3">
+          <div class="step-circle">3</div>
+          <div class="step-label">Konfirmasi</div>
+        </div>
+      </div>
+
+      <!-- PANEL 1: Schedule -->
+      <div class="form-panel active" id="panel1">
+        <!-- Date -->
+        <div class="date-section">
+          <div class="form-section-title">
+            <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            Pilih Tanggal
+          </div>
+          <div class="date-scroll" id="dateScroll"></div>
+          <button class="cal-toggle-btn" onclick="toggleCal()">
+            <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <span id="calToggleTxt">Lihat kalender lengkap</span>
+          </button>
+          <div class="cal-grid" id="calGrid">
+            <div class="cal-header">
+              <button class="cal-nav" onclick="shiftMonth(-1)"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+              <div class="cal-month" id="calMonth"></div>
+              <button class="cal-nav" onclick="shiftMonth(1)"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+            </div>
+            <div class="cal-weekdays">
+              <div class="cal-weekday">Min</div><div class="cal-weekday">Sen</div>
+              <div class="cal-weekday">Sel</div><div class="cal-weekday">Rab</div>
+              <div class="cal-weekday">Kam</div><div class="cal-weekday">Jum</div>
+              <div class="cal-weekday">Sab</div>
+            </div>
+            <div class="cal-days" id="calDays"></div>
+          </div>
+        </div>
+
+        <!-- Time -->
+        <div class="time-section">
+          <div class="form-section-title">
+            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+            Pilih Waktu
+          </div>
+          <div class="time-label-row"><span class="time-period">🌅 Pagi</span></div>
+          <div class="time-grid" id="morningSlots"></div>
+          <div class="time-label-row"><span class="time-period">☀️ Siang</span></div>
+          <div class="time-grid" id="afternoonSlots"></div>
+          <div class="time-label-row"><span class="time-period">🌙 Malam</span></div>
+          <div class="time-grid" id="eveningSlots"></div>
+        </div>
+
+        <!-- Party Size -->
+        <div class="party-section">
+          <div class="form-section-title">
+            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+            Jumlah Tamu & Meja
+          </div>
+          <div class="party-counter">
+            <button class="party-btn" onclick="changeParty(-1)">−</button>
+            <div class="party-num" id="partyNum">2</div>
+            <button class="party-btn" onclick="changeParty(1)">+</button>
+          </div>
+          <div class="party-note">
+            <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+            Maksimal <strong>&nbsp;12 orang&nbsp;</strong> per reservasi. Lebih dari itu hubungi cafe langsung.
+          </div>
+          <div class="table-types">
+            <div class="table-type active" onclick="selectTable(this,'indoor')"><span class="tt-icon">🪑</span> Indoor</div>
+            <div class="table-type" onclick="selectTable(this,'outdoor')"><span class="tt-icon">🌿</span> Outdoor</div>
+            <div class="table-type" onclick="selectTable(this,'private')"><span class="tt-icon">🚪</span> Private Room</div>
+            <div class="table-type" onclick="selectTable(this,'bar')"><span class="tt-icon">🍵</span> Bar Seat</div>
+          </div>
+        </div>
+
+        <div class="form-nav">
+          <button class="btn-next" onclick="goStep(2)">
+            Lanjut ke Detail Tamu
+            <svg viewBox="0 0 24 24" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 2: Guest details -->
+      <div class="form-panel" id="panel2">
+        <div class="form-section-title">
+          <svg viewBox="0 0 24 24" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+          Detail Tamu
+        </div>
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Nama Lengkap <span class="req">*</span></label>
+            <input class="form-input" type="text" id="guestName" placeholder="Nama kamu..." oninput="syncSummary()"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Nomor HP / WhatsApp <span class="req">*</span></label>
+            <input class="form-input" type="tel" id="guestPhone" placeholder="08xx-xxxx-xxxx" oninput="syncSummary()"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Email</label>
+            <input class="form-input" type="email" id="guestEmail" placeholder="email@kamu.com"/>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Sumber Referral</label>
+            <select class="form-select" id="guestRef">
+              <option value="">Dari mana kamu tahu CafeFinder?</option>
+              <option>Teman / Keluarga</option>
+              <option>Instagram</option>
+              <option>TikTok</option>
+              <option>Google Search</option>
+              <option>Lainnya</option>
+            </select>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Acara / Kebutuhan Khusus</label>
+            <div class="occasion-wrap" id="occasionWrap">
+              <div class="occasion-tag" onclick="toggleOccasion(this)">☕ Santai</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">💻 WFC / Kerja</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">🎂 Ulang Tahun</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">💍 Dinner Romantis</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">👨‍👩‍👧 Family Time</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">🤝 Meeting / Bisnis</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">🎉 Perayaan</div>
+              <div class="occasion-tag" onclick="toggleOccasion(this)">📸 Konten / Foto</div>
+            </div>
+          </div>
+          <div class="form-group full">
+            <label class="form-label">Pesan / Permintaan Khusus</label>
+            <textarea class="form-textarea" id="guestNote" maxlength="200" placeholder="Contoh: dekat jendela, tidak ada bawang, butuh HDMI..." oninput="updateCharCount(this)"></textarea>
+            <div class="form-char-count"><span id="charCount">0</span>/200</div>
+          </div>
+        </div>
+        <div class="form-nav">
+          <button class="btn-back" onclick="goStep(1)">
+            <svg viewBox="0 0 24 24" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali
+          </button>
+          <button class="btn-next" onclick="goStep(3)">
+            Cek Konfirmasi
+            <svg viewBox="0 0 24 24" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- PANEL 3: Review & confirm -->
+      <div class="form-panel" id="panel3">
+        <div class="form-section-title">
+          <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+          Ringkasan Reservasi
+        </div>
+
+        <div class="review-section">
+          <div class="review-section-title">Detail Cafe</div>
+          <div class="review-row"><span class="rl">Cafe</span><span class="rv" id="rv-cafe">—</span></div>
+          <div class="review-row"><span class="rl">Lokasi</span><span class="rv" id="rv-area">—</span></div>
+          <div class="review-row"><span class="rl">Telepon</span><span class="rv" id="rv-phone">—</span></div>
+        </div>
+
+        <div class="review-section">
+          <div class="review-section-title">Jadwal</div>
+          <div class="review-row"><span class="rl">Tanggal</span><span class="rv" id="rv-date">—</span></div>
+          <div class="review-row"><span class="rl">Waktu</span><span class="rv highlight" id="rv-time">—</span></div>
+          <div class="review-row"><span class="rl">Tamu</span><span class="rv" id="rv-party">—</span></div>
+          <div class="review-row"><span class="rl">Meja</span><span class="rv" id="rv-table">—</span></div>
+          <hr class="review-divider"/>
+          <div class="review-row highlight"><span class="rl">Range Harga</span><span class="rv" id="rv-price">—</span></div>
+        </div>
+
+        <div class="review-section">
+          <div class="review-section-title">Tamu</div>
+          <div class="review-row"><span class="rl">Nama</span><span class="rv" id="rv-name">—</span></div>
+          <div class="review-row"><span class="rl">WhatsApp</span><span class="rv" id="rv-wa">—</span></div>
+          <div class="review-row"><span class="rl">Acara</span><span class="rv" id="rv-occasion">—</span></div>
+          <div class="review-row"><span class="rl">Catatan</span><span class="rv" id="rv-note">—</span></div>
+        </div>
+
+        <div class="cancel-policy">
+          <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+          <div><strong>Kebijakan Pembatalan:</strong> Reservasi bisa dibatalkan gratis maksimal 2 jam sebelum waktu tiba. Lewat dari itu, silakan hubungi cafe langsung via nomor yang tertera.</div>
+        </div>
+
+        <div class="form-nav">
+          <button class="btn-back" onclick="goStep(2)">
+            <svg viewBox="0 0 24 24" stroke-width="2"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+            Kembali
+          </button>
+          <button class="btn-next confirm" onclick="submitReservation()">
+            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+            Konfirmasi Reservasi
+          </button>
+        </div>
+      </div>
+
+      <!-- SUCCESS SCREEN -->
+      <div class="success-screen" id="successScreen">
+        <div class="success-icon">✅</div>
+        <h2>Reservasi Berhasil!</h2>
+        <p>Kode booking kamu sudah dikirim via WhatsApp. Tunjukkan kode ini saat tiba di cafe.</p>
+        <div class="booking-code">
+          <div class="code-label">Kode Booking</div>
+          <div class="code-val" id="bookingCode">CF-XXXX</div>
+        </div>
+        <div class="success-actions">
+          <button class="suc-btn primary" onclick="shareWA()">
+            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2A19.79 19.79 0 0 1 11.69 19a19.5 19.5 0 0 1-6-6A19.79 19.79 0 0 1 2.12 4.18 2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            Kirim ke WhatsApp
+          </button>
+          <button class="suc-btn sec" onclick="resetForm()">
+            <svg viewBox="0 0 24 24" stroke-width="2"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 1 0 .49-3.1"/></svg>
+            Booking Lagi
+          </button>
+          <button class="suc-btn sec" onclick="window.location.href='index.html'">
+            <svg viewBox="0 0 24 24" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+            Kembali ke Beranda
+          </button>
+        </div>
+      </div>
+
+    </div><!-- end res-form-area -->
+
+    <!-- RIGHT — Summary sidebar -->
+    <aside class="res-summary">
+      <div class="summary-title">📋 Ringkasan Booking</div>
+      <div class="summary-cafe">
+        <div class="sum-thumb" id="sumThumb">📚</div>
+        <div>
+          <div class="sum-cname" id="sumCafeName">Kopi & Kata Literasi</div>
+          <div class="sum-area" id="sumCafeArea">Grogol, Jakarta Barat</div>
+        </div>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="sum-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <span class="sum-key">Tanggal</span>
+        <span class="sum-val" id="sum-date"><span class="placeholder">Belum dipilih</span></span>
+      </div>
+      <div class="sum-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <span class="sum-key">Waktu</span>
+        <span class="sum-val" id="sum-time"><span class="placeholder">Belum dipilih</span></span>
+      </div>
+      <div class="sum-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+        <span class="sum-key">Tamu</span>
+        <span class="sum-val" id="sum-party">2 orang</span>
+      </div>
+      <div class="sum-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span class="sum-key">Meja</span>
+        <span class="sum-val" id="sum-table">Indoor</span>
+      </div>
+      <div class="sum-row">
+        <svg viewBox="0 0 24 24" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+        <span class="sum-key">Harga</span>
+        <span class="sum-val" id="sum-price">Rp40k–100k</span>
+      </div>
+      <div class="summary-divider"></div>
+      <div class="sum-facilities" id="sumFacilities"></div>
+      <div class="sum-note">
+        <strong>Konfirmasi</strong> akan dikirim via WhatsApp dalam 5 menit setelah booking.
+      </div>
+
+      <div class="recent-bookings">
+        <div class="rb-title">Booking Terbaru</div>
+        <div class="rb-item">
+          <div class="rb-emoji">📚</div>
+          <div class="rb-info">
+            <div class="rb-name">Kopi & Kata Literasi</div>
+            <div class="rb-date">Kemarin · 19.00</div>
+          </div>
+          <div class="rb-badge confirmed">✓ Hadir</div>
+        </div>
+        <div class="rb-item">
+          <div class="rb-emoji">🌿</div>
+          <div class="rb-info">
+            <div class="rb-name">Daun & Biji Coffee</div>
+            <div class="rb-date">3 hari lalu · 14.00</div>
+          </div>
+          <div class="rb-badge confirmed">✓ Hadir</div>
+        </div>
+        <div class="rb-item">
+          <div class="rb-emoji">💻</div>
+          <div class="rb-info">
+            <div class="rb-name">Plug-in Coffee</div>
+            <div class="rb-date">Besok · 10.00</div>
+          </div>
+          <div class="rb-badge pending">⏳ Pending</div>
+        </div>
+      </div>
+    </aside>
+
+  </div><!-- end res-page -->
+
+</div><!-- end #app -->
+<div class="toast" id="toast"></div>
+
+<!-- ============================================================
+     SCRIPT
+     ============================================================ -->
+<script src="script.js"></script>
+<script>
+/* ---- state ---- */
+const state2 = {
+  cafeId: 0,
+  date: null,
+  dateLabel: null,
+  time: null,
+  party: 2,
+  table: 'Indoor',
+  step: 1,
+  calYear: new Date().getFullYear(),
+  calMonth: new Date().getMonth(),
+};
+
+/* ---- cafe data from script.js (cafes array) ---- */
+function getCafe(id){ return (typeof cafes !== 'undefined') ? (cafes[id] || cafes[0]) : null; }
+
+/* ---- init ---- */
+document.addEventListener('DOMContentLoaded', ()=>{
+  buildCafeList();
+  buildMobilePicker();
+  buildDateScroll();
+  buildTimeSlots();
+  buildCalendar();
+  selectCafe(0);
+  syncSummary();
+});
+
+/* ---- cafe list ---- */
+function buildCafeList(){
+  const container = document.getElementById('cafeItems');
+  if(!container || typeof cafes === 'undefined') return;
+  container.innerHTML = cafes.map((c,i) => `
+    <div class="res-cafe-item${i===0?' active':''}" id="rci-${i}" onclick="selectCafe(${i})">
+      <div class="res-cafe-thumb" style="background:${c.bg}">
+        <img src="cafe-photo.png" alt="${c.name}" onerror="this.style.display='none';this.parentElement.textContent='${c.emoji}'">
+      </div>
+      <div class="res-cafe-info">
+        <div class="res-cafe-item-name">${c.name}</div>
+        <div class="res-cafe-item-area">${c.area}</div>
+        <div class="res-cafe-item-meta">
+          <span class="res-star">★</span>
+          <span class="res-rv">${c.rating.toFixed(1)}</span>
+          <span class="res-dist">· ${c.distText}</span>
+        </div>
+      </div>
+      <div class="res-status-dot ${c.status}"></div>
+    </div>
+  `).join('');
+}
+
+function buildMobilePicker(){
+  const mp = document.getElementById('mobileCafePicker');
+  if(!mp || typeof cafes === 'undefined') return;
+  mp.innerHTML = cafes.slice(0,10).map((c,i)=>`
+    <div class="mcp-item${i===0?' active':''}" id="mcp-${i}" onclick="selectCafe(${i})">
+      <div class="mcp-emoji">${c.emoji}</div>
+      <div class="mcp-name">${c.name.split(' ').slice(0,2).join(' ')}</div>
+      <div class="mcp-area">${c.area.split(',')[0]}</div>
+    </div>
+  `).join('');
+  if(window.innerWidth <= 860) mp.style.display = 'flex';
+}
+window.addEventListener('resize', ()=>{
+  const mp = document.getElementById('mobileCafePicker');
+  if(mp) mp.style.display = window.innerWidth <= 860 ? 'flex' : 'none';
+});
+
+function selectCafe(id){
+  state2.cafeId = id;
+  document.querySelectorAll('.res-cafe-item').forEach((el,i) => el.classList.toggle('active', i===id));
+  document.querySelectorAll('.mcp-item').forEach((el,i) => el.classList.toggle('active', i===id));
+  const c = getCafe(id);
+  if(!c) return;
+  // update header bar
+  const thumbEl = document.getElementById('scbThumb');
+  if(thumbEl){ thumbEl.innerHTML = `<img src="cafe-photo.png" alt="${c.name}" onerror="this.style.display='none';this.parentElement.textContent='${c.emoji}'" style="width:100%;height:100%;object-fit:cover;border-radius:10px">`; }
+  setText('scbName', c.name);
+  setText('scbArea', c.area);
+  setText('scbHours', c.hours);
+  setText('scbRating', c.rating.toFixed(1));
+  // summary
+  const sumThumb = document.getElementById('sumThumb');
+  if(sumThumb){ sumThumb.innerHTML = `<img src="cafe-photo.png" alt="${c.name}" onerror="this.style.display='none';this.parentElement.textContent='${c.emoji}'" style="width:100%;height:100%;object-fit:cover;border-radius:8px">`; }
+  setText('sumCafeName', c.name);
+  setText('sumCafeArea', c.area);
+  setText('sum-price', c.price);
+  // facilities
+  const facEl = document.getElementById('sumFacilities');
+  if(facEl) facEl.innerHTML = c.amenities.slice(0,4).map(a=>`<div class="sum-fac"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>${a}</div>`).join('');
+  buildTimeSlots();
+  syncSummary();
+}
+
+function filterCafeList(q){
+  if(typeof cafes === 'undefined') return;
+  const items = document.querySelectorAll('.res-cafe-item');
+  const lq = q.toLowerCase();
+  items.forEach((el,i)=>{
+    const c = cafes[i];
+    if(!c) return;
+    el.style.display = (!lq || c.name.toLowerCase().includes(lq) || c.area.toLowerCase().includes(lq)) ? '' : 'none';
+  });
+}
+
+/* ---- date scroll (next 14 days) ---- */
+function buildDateScroll(){
+  const scroll = document.getElementById('dateScroll');
+  if(!scroll) return;
+  const days = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'];
+  const today = new Date();
+  scroll.innerHTML = Array.from({length:14}, (_,i)=>{
+    const d = new Date(today); d.setDate(today.getDate()+i);
+    const label = i===0?'Hari ini':i===1?'Besok':days[d.getDay()];
+    const dateStr = d.toISOString().split('T')[0];
+    return `<div class="date-pill${i===0?' active':''}" data-date="${dateStr}" data-label="${label} ${d.getDate()} ${['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'][d.getMonth()]}" onclick="selectDatePill(this)">
+      <span class="dp-day">${label}</span>
+      <span class="dp-num">${d.getDate()}</span>
+    </div>`;
+  }).join('');
+  // set default
+  const firstPill = scroll.querySelector('.date-pill.active');
+  if(firstPill){ state2.date=firstPill.dataset.date; state2.dateLabel=firstPill.dataset.label; }
+}
+
+function selectDatePill(el){
+  document.querySelectorAll('.date-pill').forEach(p=>p.classList.remove('active'));
+  el.classList.add('active');
+  state2.date = el.dataset.date; state2.dateLabel = el.dataset.label;
+  syncSummary();
+  buildCalendar();
+}
+
+/* ---- calendar ---- */
+function toggleCal(){
+  const grid = document.getElementById('calGrid');
+  const btn  = document.getElementById('calToggleTxt');
+  grid.classList.toggle('open');
+  btn.textContent = grid.classList.contains('open') ? 'Sembunyikan kalender' : 'Lihat kalender lengkap';
+  if(grid.classList.contains('open')) buildCalendar();
+}
+function shiftMonth(d){ state2.calMonth+=d; if(state2.calMonth>11){state2.calMonth=0;state2.calYear++;} if(state2.calMonth<0){state2.calMonth=11;state2.calYear--;} buildCalendar(); }
+function buildCalendar(){
+  const monthEl=document.getElementById('calMonth'); const daysEl=document.getElementById('calDays');
+  if(!monthEl||!daysEl) return;
+  const ms=['Januari','Februari','Maret','April','Mei','Juni','Juli','Agustus','September','Oktober','November','Desember'];
+  monthEl.textContent=ms[state2.calMonth]+' '+state2.calYear;
+  const first=new Date(state2.calYear,state2.calMonth,1).getDay();
+  const total=new Date(state2.calYear,state2.calMonth+1,0).getDate();
+  const today=new Date(); today.setHours(0,0,0,0);
+  let html='';
+  for(let i=0;i<first;i++) html+=`<div class="cal-day empty"></div>`;
+  for(let d=1;d<=total;d++){
+    const dt=new Date(state2.calYear,state2.calMonth,d);
+    const iso=dt.toISOString().split('T')[0];
+    const isToday=dt.getTime()===today.getTime();
+    const isPast=dt<today;
+    const isSel=state2.date===iso;
+    html+=`<div class="cal-day${isToday?' today':''}${isSel?' active':''}${isPast?' disabled':''}" onclick="selectCalDay('${iso}','${d} ${ms[state2.calMonth]}')" >${d}</div>`;
+  }
+  daysEl.innerHTML=html;
+}
+function selectCalDay(iso,label){
+  state2.date=iso; state2.dateLabel=label;
+  buildCalendar();
+  // sync date scroll
+  document.querySelectorAll('.date-pill').forEach(p=>{ p.classList.toggle('active',p.dataset.date===iso); });
+  syncSummary();
+  showToast('Tanggal dipilih: '+label+' ✓');
+}
+
+/* ---- time slots ---- */
+function buildTimeSlots(){
+  const c = getCafe(state2.cafeId);
+  const closeH = c ? c.closeHour : 23;
+  const popular = [12,13,19,20];
+  const booked  = [9,14,18];
+  function makeSlotsFor(start, end, containerId){
+    const el = document.getElementById(containerId); if(!el) return;
+    let html='';
+    for(let h=start;h<end;h++){
+      for(let m=0;m<60;m+=30){
+        const tStr=`${String(h).padStart(2,'0')}.${m===0?'00':'30'}`;
+        const isDisabled = booked.includes(h) && m===0;
+        const isPop = popular.includes(h) && m===0;
+        const totalH = h+(m/60);
+        if(totalH>=(closeH===0?24:closeH)) continue;
+        html+=`<div class="time-slot${isDisabled?' disabled':''}${isPop?' popular':''}" data-time="${tStr}" onclick="selectTime(this,'${tStr}')">${tStr}</div>`;
+      }
+    }
+    el.innerHTML=html;
+  }
+  makeSlotsFor(7,12,'morningSlots');
+  makeSlotsFor(12,17,'afternoonSlots');
+  makeSlotsFor(17,closeH===0?24:closeH,'eveningSlots');
+}
+function selectTime(el, t){
+  document.querySelectorAll('.time-slot').forEach(s=>s.classList.remove('active'));
+  el.classList.add('active');
+  state2.time=t; syncSummary();
+  showToast('Waktu dipilih: '+t+' ✓');
+}
+
+/* ---- party size ---- */
+function changeParty(d){
+  state2.party=Math.max(1,Math.min(12,state2.party+d));
+  document.getElementById('partyNum').textContent=state2.party;
+  document.getElementById('sum-party').textContent=state2.party+' orang';
+  syncSummary();
+}
+
+/* ---- table type ---- */
+function selectTable(el, type){
+  document.querySelectorAll('.table-type').forEach(t=>t.classList.remove('active'));
+  el.classList.add('active');
+  state2.table=el.textContent.trim().replace(/[^\w\s]/g,'').trim();
+  document.getElementById('sum-table').textContent=state2.table;
+  syncSummary();
+}
+
+/* ---- occasions ---- */
+function toggleOccasion(el){ el.classList.toggle('active'); syncSummary(); }
+
+/* ---- sync summary ---- */
+function syncSummary(){
+  setText('sum-date', state2.dateLabel || '<span class="placeholder">Belum dipilih</span>');
+  setText('sum-time', state2.time || '<span class="placeholder">Belum dipilih</span>');
+  setText('sum-party', state2.party+' orang');
+  setText('sum-table', state2.table);
+}
+
+/* ---- steps ---- */
+function goStep(n){
+  if(n===2){
+    if(!state2.date){ showToast('Pilih tanggal dulu ya! 📅'); return; }
+    if(!state2.time){ showToast('Pilih waktu dulu ya! ⏰'); return; }
+  }
+  if(n===3){ fillReview(); }
+  state2.step=n;
+  ['panel1','panel2','panel3'].forEach((id,i)=>{
+    const el=document.getElementById(id);
+    if(el){ el.classList.toggle('active', i+1===n); }
+  });
+  [1,2,3].forEach(s=>{
+    const el=document.getElementById('step'+s);
+    if(!el) return;
+    el.classList.toggle('active',s===n);
+    el.classList.toggle('done',s<n);
+  });
+  window.scrollTo({top:document.getElementById('formArea')?.offsetTop-80||0, behavior:'smooth'});
+}
+
+/* ---- fill review panel ---- */
+function fillReview(){
+  const c = getCafe(state2.cafeId);
+  if(c){
+    setText('rv-cafe', c.name);
+    setText('rv-area', c.area);
+    setText('rv-phone', c.phone);
+    setText('rv-price', c.price+' /orang');
+  }
+  setText('rv-date', state2.dateLabel||'—');
+  setText('rv-time', state2.time||'—');
+  setText('rv-party', state2.party+' orang');
+  setText('rv-table', state2.table);
+  setText('rv-name', document.getElementById('guestName')?.value||'—');
+  setText('rv-wa', document.getElementById('guestPhone')?.value||'—');
+  const occasions = [...document.querySelectorAll('.occasion-tag.active')].map(o=>o.textContent.trim()).join(', ');
+  setText('rv-occasion', occasions||'—');
+  const note = document.getElementById('guestNote')?.value;
+  setText('rv-note', note||'—');
+}
+
+/* ---- submit ---- */
+function submitReservation(){
+  const name = document.getElementById('guestName')?.value?.trim();
+  const phone= document.getElementById('guestPhone')?.value?.trim();
+  if(!name){ showToast('Isi nama kamu dulu ya! 👤'); goStep(2); return; }
+  if(!phone){ showToast('Isi nomor WhatsApp dulu ya! 📱'); goStep(2); return; }
+  // hide panels, show success
+  ['panel1','panel2','panel3'].forEach(id=>{ const el=document.getElementById(id); if(el) el.classList.remove('active'); });
+  document.getElementById('stepsBar').style.display='none';
+  document.getElementById('selectedCafeBar').style.display='none';
+  const code='CF-'+Math.random().toString(36).substring(2,6).toUpperCase();
+  document.getElementById('bookingCode').textContent=code;
+  document.getElementById('successScreen').classList.add('show');
+  showToast('Reservasi berhasil! Kode: '+code+' 🎉');
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+function resetForm(){
+  document.getElementById('successScreen').classList.remove('show');
+  document.getElementById('stepsBar').style.display='';
+  document.getElementById('selectedCafeBar').style.display='';
+  ['panel1','panel2','panel3'].forEach((id,i)=>{ const el=document.getElementById(id); if(el) el.classList.toggle('active',i===0); });
+  goStep(1);
+  state2.time=null; state2.date=null; state2.dateLabel=null;
+  buildDateScroll(); buildTimeSlots();
+  syncSummary();
+}
+
+function shareWA(){
+  const c=getCafe(state2.cafeId);
+  const code=document.getElementById('bookingCode').textContent;
+  const msg=`Halo! Saya sudah reservasi di *${c?.name||'cafe'}* melalui CafeFinder.\n\n📋 *Kode Booking:* ${code}\n📅 *Tanggal:* ${state2.dateLabel}\n⏰ *Waktu:* ${state2.time}\n👥 *Tamu:* ${state2.party} orang\n🪑 *Meja:* ${state2.table}`;
+  window.open('https://wa.me/?text='+encodeURIComponent(msg),'_blank');
+}
+
+function heroSearchCafe(){
+  const q=document.getElementById('heroSearch')?.value?.trim()||'';
+  document.getElementById('cafeSearch').value=q;
+  filterCafeList(q);
+  window.scrollTo({top:document.querySelector('.res-page')?.offsetTop-80||0,behavior:'smooth'});
+}
+
+/* ---- util ---- */
+function setText(id,html){ const el=document.getElementById(id); if(el) el.innerHTML=html; }
+function updateCharCount(el){ const n=el.value.length; document.getElementById('charCount').textContent=n; }
+</script>
+</body>
+</html>
