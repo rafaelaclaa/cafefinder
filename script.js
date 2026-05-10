@@ -204,7 +204,7 @@ function renderHeroSlider(){
   const dotBtns=[...dots.querySelectorAll('button')];
   function show(i){cards[active]?.classList.remove('active');dotBtns[active]?.classList.remove('active');active=i;cards[active]?.classList.add('active');dotBtns[active]?.classList.add('active');}
   dotBtns.forEach((btn,i)=>btn.addEventListener('click',()=>show(i)));
-  setInterval(()=>show((active+1)%cards.length),500);
+  setInterval(()=>show((active+1)%cards.length),3500);
   refreshCursorTargets();
 }
 function setChip(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.category=el.dataset.category||'all';renderCards();showToast('Filter kategori diperbarui ✓')}
