@@ -147,6 +147,9 @@ function cafeDetailMarkup(c){
   const schedHtml=c.schedule.map(s=>`<tr class="${s.today?'today':''}"><td>${s.day}</td><td>${s.hours}</td></tr>`).join('');
   const reviewHtml=c.reviews_list.map(r=>`<div class="review-card"><div class="review-author">${r.name}<span class="review-stars">${r.stars}</span></div><div class="review-txt">${r.txt}</div>${r.media?`<div class="review-media">${r.media.map(m=>`<div>${m}</div>`).join('')}</div>`:''}</div>`).join('');
   const amenHtml=c.amenities.map(a=>`<div class="amenity"><svg viewBox="0 0 24 24" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>${a}</div>`).join('');
+  const cafeParam=encodeURIComponent(c.name);
+  const menuUrl=`menu.html?cafe=${cafeParam}`;
+  const mapsUrl=`maps.html?cafe=${cafeParam}`;
   return `<div class="modal-hero-img"><img src="cafe-photo.png" alt="Suasana cafe ${c.name}"></div>
   <div class="modal-content-scroll">
     <div class="modal-title-row"><div><div class="detail-selected-tag">${c.isPartner?c.partnerPlan:'CafeFinder Pick'}</div><h2>${c.name}</h2><p>${c.area} · ${c.distText}</p></div><div class="modal-rating"><span>★</span>${c.rating.toFixed(1)}<small>${c.reviews} ulasan</small></div></div>
@@ -160,9 +163,10 @@ function cafeDetailMarkup(c){
       <section class="d-section"><div class="d-label">Info Utama</div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M6 17h12"/><path d="M8 17v3"/><path d="M16 17v3"/><rect x="5" y="3" width="14" height="14" rx="3"/><path d="M8 7h8"/><path d="M8 11h8"/></svg><span>${c.transit}</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07A19.5 19.5 0 0 1 4.69 11.5a19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 3.62 1h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L7.91 8.6a16 16 0 0 0 6.29 6.29l.96-.96a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg><span>${c.phone}</span></div><div class="d-row"><svg viewBox="0 0 24 24" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>Buka ${c.hours}</span></div></section>
       <section class="d-section"><div class="d-label">Fasilitas</div><div class="amenities">${amenHtml}</div></section>
       <section class="d-section"><div class="d-label">Jam Operasional</div><table class="hours-table">${schedHtml}</table></section>
+      <section class="d-section modal-link-panel"><div class="d-label">Menu & Lokasi</div><div class="modal-link-actions"><a href="${menuUrl}"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M4 4.5A2.5 2.5 0 0 1 6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5z"/></svg><span>Lihat Menu</span><small>Daftar menu cafe</small></a><a href="${mapsUrl}"><svg viewBox="0 0 24 24" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><span>Buka Maps</span><small>Arah ke lokasi</small></a></div></section>
       <section class="d-section"><div class="d-label">Ulasan Terverifikasi</div>${reviewHtml}</section>
     </div>
-    <button class="btn-reserve-big" onclick="reserve(event,'${c.name}')"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Buat Reservasi</button>
+    <button class="btn-reserve-big" onclick="reserve(event,'${c.name}')"><svg viewBox="0 0 24 24" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>Reservasi Sekarang</button>
   </div>`;
 }
 function ensureCafeModal(){
@@ -204,13 +208,13 @@ function renderHeroSlider(){
   const dotBtns=[...dots.querySelectorAll('button')];
   function show(i){cards[active]?.classList.remove('active');dotBtns[active]?.classList.remove('active');active=i;cards[active]?.classList.add('active');dotBtns[active]?.classList.add('active');}
   dotBtns.forEach((btn,i)=>btn.addEventListener('click',()=>show(i)));
-  setInterval(()=>show((active+1)%cards.length),3500);
+  setInterval(()=>show((active+1)%cards.length),3000);
   refreshCursorTargets();
 }
 function setChip(el){document.querySelectorAll('.chip').forEach(c=>c.classList.remove('active'));el.classList.add('active');state.category=el.dataset.category||'all';renderCards();showToast('Filter kategori diperbarui ✓')}
 function togglePrice(el){el.classList.toggle('active');renderCards();}
 function toggleFav(e,el){e.stopPropagation();const liked=el.classList.toggle('liked');el.textContent=liked?'♥':'♡';el.style.color=liked?'#e74c3c':'';showToast(liked?'Ditambahkan ke Favorit ♥':'Dihapus dari Favorit')}
-function reserve(e,name){e.stopPropagation();showToast('Reservasi untuk '+name+' berhasil! 🎉')}
+function reserve(e,name){e.stopPropagation();window.location.href='reservasi.html?cafe='+encodeURIComponent(name)}
 function showToast(msg){const t=document.getElementById('toast'); if(!t) return; t.textContent=msg;t.classList.add('show');clearTimeout(t._timer);t._timer=setTimeout(()=>t.classList.remove('show'),2800)}
 
 if(searchInput){searchInput.addEventListener('input',e=>{state.search=e.target.value;renderCards()});}
